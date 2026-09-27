@@ -41,9 +41,28 @@ const car=new Image(),enemy=new Image(),emoji=new Image();
 car.src="assets/car.png";
 enemy.src="assets/enemy.png";
 emoji.src="assets/emoji.png";
-const audio=new Audio("assets/music.mp3");
-audio.loop=true;
-audio.volume=0.5;
+const TRACKS=["assets/music1.mp3","assets/music2.mp3","assets/music3.mp3"];
+const BASE_VOLUME=0.5;
+const FADE_SECONDS=2;
+let trackIndex=0;
+const audio=new Audio(TRACKS[trackIndex]);
+audio.loop=false;
+audio.volume=BASE_VOLUME;
+audio.addEventListener("timeupdate",()=>{
+    if(isNaN(audio.duration))return;
+    const remaining=audio.duration-audio.currentTime;
+    if(remaining<=FADE_SECONDS){
+        audio.volume=Math.max(0,BASE_VOLUME*(remaining/FADE_SECONDS));
+    }else if(audio.volume!==BASE_VOLUME){
+        audio.volume=BASE_VOLUME;
+    }
+});
+audio.addEventListener("ended",()=>{
+    trackIndex=(trackIndex+1)%TRACKS.length;
+    audio.src=TRACKS[trackIndex];
+    audio.volume=BASE_VOLUME;
+    audio.play().catch(()=>{});
+});
 const WIDTH=600,HEIGHT=800;
 const GREEN="rgb(30,150,50)",GRAY="rgb(70,70,70)",WHITE="#fff";
 let carX=275,carY=650,carSpeed=7;
